@@ -1,0 +1,190 @@
+<!DOCTYPE html>
+
+<html>
+<head>
+    <title> The Game of Life </title>
+
+    <style>
+        body {
+            padding: 0px;
+            margin: 0px;
+            background-color: #334466;
+            color: white;
+            font: 14px 'Arial' sans-serif;
+        }
+
+        h1 {
+            width: 960px;
+            margin: auto;
+            font-size: 1.4em;
+            padding: 10px 0px;
+        }
+
+        .mainContent {
+            color: black;
+            margin: 0px auto;
+            width: 960px;
+            background-color: white;
+            border-radius: 10px;
+            text-align: center;
+            line-height: 500px;
+        }
+
+        #gameCanvas {
+            border: 1px solid #ccc;
+            vertical-align: middle;
+            cursor: pointer;
+        }
+
+        .rules {
+            line-height: normal;
+            text-align: left;
+            padding: 0px 10px 20px;
+            float: left;
+        }
+
+        .controls {
+            float: right;
+            line-height: normal;
+        }
+
+            .controls button {
+                min-width: 100px;
+                height: 25px;
+            }
+    </style>
+</head>
+<body>
+    <h1>
+        The Game of Life
+    </h1>
+    <div class="mainContent">
+        <!-- Canvas goes here -->
+        <canvas id="gameCanvas" width="800" height="450">
+            Your browser does not support HTML5
+        </canvas>
+        <section class="rules">
+            <h3>
+                Live Cell Rules
+            </h3>
+            <ul>
+                <li>Any cell with one or no live neighbors dies</li>
+                <li>Any cell with four or more live neighbors dies</li>
+                <li>Any cell with two or three live neighbors survives</li>
+            </ul>
+            <h3>
+                Dead Cell Rules
+            </h3>
+            <ul>
+                <li>Dead cells with three live neighbors become alive.</li>
+            </ul>
+        </section>
+        <section class="controls">
+            <button id="btn1">Randomize</button>
+            <button id="btn2">Start</button>
+            <button id="btn3">Clear</button>
+        </section>
+        <!-- Clear the floats to expand the background-->
+        <div style="clear:both;"></div>
+    </div>
+
+    <script src="cell.js"></script>
+    <script src="grid.js"></script>
+    <script src="lifeGame.js"></script>
+
+<script>
+var canvas,
+    gameWorld,
+    CELL_DIMENSION = 10,
+    WORLD_WIDTH = 800,
+    WORLD_HEIGHT = 450,
+    startButton;
+
+
+window.onload = init;
+function init() {
+    startButton = document.getElementById("btn2");
+	clearButton = document.getElementById("btn3");
+	ranButton=document.getElementById("btn1");
+    canvas = document.getElementById("gameCanvas");
+    gameWorld = new LifeGame(WORLD_WIDTH, WORLD_HEIGHT, CELL_DIMENSION, canvas); 
+
+    canvas.addEventListener("click", onCanvasClick);
+
+    //set live cells 
+    clearGame();
+    gameWorld.addRandomCells(250);
+    gameWorld.draw();
+
+    //controllers
+    startButton.onclick = function() {
+        startGame();
+    }
+	
+	clearButton.onclick = function(){
+		clearGame() ;
+	}
+   ranButton.onclick = function(){
+	 randomGame();
+	 gameWorld.addRandomCells(369);
+	 gameWorld.draw();
+	}
+}
+
+
+
+/** step 9 */
+
+function onCanvasClick(evt) {
+    var rect = canvas.getBoundingClientRect();
+
+    //Get the x/y position of the cell clicked on
+    var cellX = Math.floor((evt.clientX - rect.left) / CELL_DIMENSION );
+    var cellY = Math.floor((evt.clientY - rect.top) / CELL_DIMENSION);
+
+    gameWorld.addCell(cellX, cellY);
+    gameWorld.draw();
+}
+
+
+/** step 11 -----  control the game */
+
+var interval = -1;
+
+/** reset the game board */
+function clearGame() {
+    pauseGame();
+    gameWorld.clear();
+    gameWorld.draw();
+	
+}
+/** Start game click handler */
+function startGame() {
+    if (interval == -1) {
+        interval = setInterval(gameWorld.update, 1000);
+        startButton.innerHTML = "Pause";
+    } else {
+        pauseGame();
+    }
+}
+/** Pause the game */
+function pauseGame() {
+    if (interval != -1) {
+        clearInterval(interval);
+        interval = -1;
+    }
+    startButton.innerHTML = "Start";
+}
+
+function randomGame(){
+	
+      pauseGame();
+	  gameWorld.addRandomCells();
+	
+    
+}
+	
+
+</script>
+</body>
+</html>
